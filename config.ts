@@ -1,7 +1,7 @@
 import { toastr } from "./utils";
 import * as Yup from 'yup';
 
-const POINT = 'api.msg-develop.meetgenie.co';
+const POINT = 'api.msg-qa.meetgenie.co';
 const SCHEME = 'https';
 
 export const API_URL = `${SCHEME}://${POINT}`;
