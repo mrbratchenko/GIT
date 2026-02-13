@@ -122,21 +122,55 @@
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
-    noBtn.addEventListener('mouseover', () => {
+    function escapeNoButton(e) {
       const rect = noBtn.getBoundingClientRect();
-      const offsetX = rect.left + rect.width / 2 - event.clientX;
-      const offsetY = rect.top + rect.height / 2 - event.clientY;
+
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+      const offsetX = rect.left + rect.width / 2 - clientX;
+      const offsetY = rect.top + rect.height / 2 - clientY;
       const length = Math.sqrt(offsetX * offsetX + offsetY * offsetY) || 1;
 
       const minDistance = 180;
       const maxDistance = 280;
       const distance = Math.random() * (maxDistance - minDistance) + minDistance;
 
-      const moveX = (offsetX / length) * distance;
-      const moveY = (offsetY / length) * distance;
+      let moveX = (offsetX / length) * distance;
+      let moveY = (offsetY / length) * distance;
+
+      // calculate new position
+      const newLeft = rect.left + moveX;
+      const newTop = rect.top + moveY;
+
+      // keep button inside screen bounds
+      const padding = 10;
+      const minX = padding;
+      const minY = padding;
+      const maxX = window.innerWidth - rect.width - padding;
+      const maxY = window.innerHeight - rect.height - padding;
+
+      const clampedLeft = Math.min(Math.max(newLeft, minX), maxX);
+      const clampedTop = Math.min(Math.max(newTop, minY), maxY);
+
+      // adjust movement so it stays within bounds
+      moveX = clampedLeft - rect.left;
+      moveY = clampedTop - rect.top;
 
       noBtn.style.transform = `translate(${moveX}px, ${moveY}px)`;
-    });
+
+      // prevent accidental clicks on mobile
+      if (e.cancelable) e.preventDefault();
+    }
+
+    // Desktop hover
+    noBtn.addEventListener('mouseover', escapeNoButton);
+
+    // Mobile touch
+    noBtn.addEventListener('touchstart', escapeNoButton, { passive: false });
+
+    // Fallback for tap/click attempts
+    noBtn.addEventListener('click', escapeNoButton);
 
     function sayYes() {
       message.classList.remove('hidden');
